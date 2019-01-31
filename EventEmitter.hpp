@@ -17,11 +17,11 @@
 #include <future>
 #include <mutex>
 
-#define __EVENTEMITTER_MUTEX_DECLARE(mutex) std::mutex mutex;
-#define __EVENTEMITTER_LOCK_GUARD(mutex) std::lock_guard<std::mutex> guard(mutex);
+#define __EVENTEMITTER_MUTEX_DECLARE(mutex) std::mutex mutex
+#define __EVENTEMITTER_LOCK_GUARD(mutex) std::lock_guard<std::mutex> guard(mutex)
 #else
-#define __EVENTEMITTER_MUTEX_DECLARE(mutex);
-#define __EVENTEMITTER_LOCK_GUARD(mutex);
+#define __EVENTEMITTER_MUTEX_DECLARE(mutex)
+#define __EVENTEMITTER_LOCK_GUARD(mutex)
 #endif
 
 #if defined(__GNUC__)
@@ -37,7 +37,7 @@
 #define __EVENTEMITTER_NONMACRO_DEFS
 namespace EE {
 	class DeferredBase {
-	protected: 
+	protected:
 		typedef std::function<void ()> DeferredHandler;
 		std::forward_list<DeferredHandler> removeHandlers;
 		std::forward_list<DeferredHandler> deferredQueue;
@@ -74,7 +74,7 @@ namespace EE {
 			while(runDeferred());
 		}
 	};
-	
+
 	// reference_wrapper needs to be used instead of std::reference_wrapper
 	// this is because of VS2013 (RC) bug
 	template<class T> class reference_wrapper
@@ -88,7 +88,7 @@ namespace EE {
 private:
     T* t_;
 };
-	
+
 
 // source: stackoverflow.com/questions/15501301/binding-function-arguments-in-c11
 template<typename T> struct forward_as_ref_type {
@@ -106,7 +106,7 @@ template<typename T> typename forward_as_ref_type<T>::type forward_as_ref(
     return t;
  }
 
-template<typename... Args>	
+template<typename... Args>
 inline decltype(auto) wrapLambdaWithCallback(const std::function<void(Args...)>& f, std::function<void()>&& afterCb) {
 	return [=,afterCb=std::move(afterCb)](Args&&... args) {
 		f(args...);
@@ -114,7 +114,7 @@ inline decltype(auto) wrapLambdaWithCallback(const std::function<void(Args...)>&
 	};
 }
 
-template<typename... Args>	
+template<typename... Args>
 inline decltype(auto) wrapLambdaWithCallback(std::function<void(Args...)>&& f, std::function<void()>&& afterCb) {
 	return [f=std::move(f),afterCb=std::move(afterCb)](Args&&... args) {
 		f(args...);
@@ -123,15 +123,15 @@ inline decltype(auto) wrapLambdaWithCallback(std::function<void(Args...)>&& f, s
 }
 
 #ifndef EVENTEMITTER_DISABLE_THREADING
-	
+
 	// TODO: allow callback for setting if async has completed
 	template<typename... Args>
 	class LambdaAsyncWrapper
 	{
-		std::function<void(Args...)> m_f;		
+		std::function<void(Args...)> m_f;
 	public:
 		LambdaAsyncWrapper(const std::function<void(Args...)>& f) : m_f(f) {}
-		void operator()(Args... fargs) const { 
+		void operator()(Args... fargs) const {
 			std::async(std::launch::async, m_f, fargs...);
 		}
 	};
@@ -139,14 +139,14 @@ inline decltype(auto) wrapLambdaWithCallback(std::function<void(Args...)>&& f, s
 	LambdaAsyncWrapper<Args...> wrapLambdaInAsync(const std::function<void(Args...)>& f) {
 		return LambdaAsyncWrapper<Args...>(f);
 	};
-	
+
 	template<typename... Args>
 	class LambdaPromiseWrapper
 	{
 		std::shared_ptr<std::promise<std::tuple<Args...>>> m_promise;
 	public:
 		LambdaPromiseWrapper(std::shared_ptr<std::promise<std::tuple<Args...>>> promise) : m_promise(promise) {}
-		void operator()(Args... fargs) const { 
+		void operator()(Args... fargs) const {
 			m_promise->set_value(std::tuple<Args...>(fargs...));
 		}
 	};
@@ -156,7 +156,7 @@ inline decltype(auto) wrapLambdaWithCallback(std::function<void(Args...)>&& f, s
 	};
 
 #endif // EVENTEMITTER_DISABLE_THREADING
-	
+
 }
 #endif // __EVENTEMITTER_NONMACRO_DEFS
 
@@ -243,7 +243,7 @@ public: \
 	void __EVENTEMITTER_CONCAT(removeAll,__EVENTEMITTER_CONCAT(name, Handlers)) () { \
 		eventHandlers.clear(); \
 	} \
-};  
+};
 
 #define __EVENTEMITTER_PROVIDER_DEFERRED(frontname, name)  \
 template<typename... Rest> \
@@ -270,7 +270,7 @@ public: \
 			__EVENTEMITTER_GCC_WORKAROUND __EVENTEMITTER_CONCAT(frontname,EventEmitterTpl)<Rest...>::__EVENTEMITTER_CONCAT(trigger,name)(as...); \
 			}, fargs...)); \
 	}	 \
-};  
+};
 
 #ifndef EVENTEMITTER_DISABLE_THREADING
 
@@ -369,7 +369,7 @@ public: \
 			  \
 			)); \
 	} \
-};  
+};
 
 #endif // EVENTEMITTER_DISABLE_THREADING
 
@@ -435,7 +435,7 @@ public: \
 			it = map.erase(it); \
 		} \
 	} \
- };  
+ };
 
 
 
